@@ -1,0 +1,6 @@
+*.wav
+.DS_Store
+.idea/
+venv
+audio.json
+db.sqlite3
