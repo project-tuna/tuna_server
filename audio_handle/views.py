@@ -222,3 +222,19 @@ def flush_list(request):
             row = Demo(name=item['name'], file_name=item['file_name'])
             row.save()
     return HttpResponse('success')
+
+def list(request):
+    # 获取歌单列表
+    object = Demo.objects.all()
+
+    # 构造返回数据
+    body = {
+        'list': []
+    }
+    for item in object:
+        itemObj = {
+            'id': item.pk,
+            'name': item.name,
+        }
+        body['list'].append(itemObj)
+    return HttpResponse(json.dumps(body), content_type='application/json')
