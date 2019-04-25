@@ -25,7 +25,6 @@ import uuid
 import hashlib
 import json
 
-
 def mfcc(frames,samplerate=16000,winlen=0.025,winstep=0.01,numcep=13,
         nfilt=26,nfft=512,lowfreq=0,highfreq=None,preemph=0.97,ceplifter=22,appendEnergy=True):
 
@@ -43,18 +42,16 @@ def mfcc(frames,samplerate=16000,winlen=0.025,winstep=0.01,numcep=13,
     return feat
 
 
-def audio_dtw(file_name):
+def audio_dtw(file_name, demo_path, media_root):
     # wav: 时域信号 array fs: 频率 num
     file_path = '{media_root}/source/{file_name}.wav'
-    media_root = settings.MEDIA_ROOT
     file_path = file_path.format(media_root=media_root, file_name=file_name)
-    print(file_path)
     wav, fs = librosa.load(file_path, sr=None)
     window_size = 1024
     step = round(window_size/3)
     frames = sigproc.framesig(wav, window_size, step, lambda x:numpy.hanning(x))
 
-    wav_2, fs_2 = librosa.load('%s/demo/voice.wav'%(settings.MEDIA_ROOT), sr=None)
+    wav_2, fs_2 = librosa.load(demo_path, sr=None)
     frames_2 = sigproc.framesig(wav_2, window_size, step, lambda x:numpy.hanning(x))
     mel = mfcc(frames, fs, nfft=1024)
     mel_2 = mfcc(frames_2, fs, nfft=1024)
@@ -121,13 +118,12 @@ def audio_dtw(file_name):
     librosa.output.write_wav(output_path, output, fs)
 
 
-def audio_pitch(file_name):
+def audio_pitch(file_name, demo_path, media_root):
     # load audio
-    media_root = settings.MEDIA_ROOT
     source_path = '{media_root}/dtw/{file_name}.wav'
     source_path = source_path.format(media_root=media_root, file_name=file_name)
     signal_source = basic.SignalObj(source_path)
-    signal_target = basic.SignalObj('%s/demo/voice.wav'%(settings.MEDIA_ROOT))
+    signal_target = basic.SignalObj(demo_path)
 
     # YAAPT pitches
     pitches_source = pYAAPT.yaapt(signal_source, frame_length=40, tda_frame_length=40, fft_length=2048, f0_min=75,
@@ -169,13 +165,12 @@ def audio_pitch(file_name):
     librosa.output.write_wav(output_path, output, fs)
 
 
-def audio_remix(file_name):
-    media_root = settings.MEDIA_ROOT
+def audio_remix(file_name, bgm_path, media_root):
     source_path = '{media_root}/pitch/{file_name}.wav'
     source_path = source_path.format(media_root=media_root, file_name=file_name)
 
     sound1 = AudioSegment.from_file(source_path)
-    sound2 = AudioSegment.from_file("%s/bgm/bgm.wav"%(settings.MEDIA_ROOT))
+    sound2 = AudioSegment.from_file(bgm_path)
 
     combined = sound1.overlay(sound2)
 
@@ -186,29 +181,44 @@ def audio_remix(file_name):
 
 # Create your views here.
 def index(request):
+    # 储存音频原文件
     audio = request.FILES.get('audio')
     file_name = str(uuid.uuid4())
-    path = default_storage.save('./source/%s.wav' % (file_name), ContentFile(audio.read()))
+    default_storage.save('./source/%s.wav' % (file_name), ContentFile(audio.read()))
+
+    # 查询所属歌曲
     source_key = request.POST.get('source')
     object = Demo.objects.get(pk=source_key)
+
+    # 设置通用变量
+    demo_path = './audios/demo/' + object.file_name
+    bgm_path = './audios/bgm/' + object.file_name
+    media_root = settings.MEDIA_ROOT
+
+    # 文件数据写入数据库
     hash = hashlib.md5()
     hash.update(audio.read())
     row = Audio(file_name=file_name, md5=hash.hexdigest(), target=object)
     row.save()
-    audio_dtw(file_name)
-    audio_pitch(file_name)
-    audio_remix(file_name)
+
+    # 音频处理
+    audio_dtw(file_name, demo_path, media_root)
+    audio_pitch(file_name, demo_path, media_root)
+    audio_remix(file_name, bgm_path, media_root)
+
+    # 返回数据
     body = {}
     body['audio'] = '%s%soutput/%s.wav'%(settings.HOST, settings.MEDIA_URL, file_name)
     return HttpResponse(json.dumps(body), content_type='application/json')
-    return HttpResponse('success')
 
 
 def flush_list(request):
-    Demo.objects.all().delete()
     file = open('%s/audio_list.json'%(settings.MEDIA_ROOT), 'r')
     data = json.loads(file.read())
     for item in data['list']:
-        row = Demo(name=item['name'], file_name=item['file_name'])
-        row.save()
+        try:
+            Demo.objects.get(name=item['name'])
+        except Demo.DoesNotExist:
+            row = Demo(name=item['name'], file_name=item['file_name'])
+            row.save()
     return HttpResponse('success')

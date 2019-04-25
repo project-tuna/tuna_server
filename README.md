@@ -23,6 +23,10 @@
     python3 manage.py makemigrations && python3 manage.py migrate && python3 manage.py runserver
     ```
     
+6. 刷新数据库歌单列表
+
+访问 http://127.0.0.1:8000/audio/flush_list 以刷新数据库里歌单列表，照理来说应该是跑个 bash 脚本干这活，但是我没找到数据库操作的命令行工具。
+    
 ## 附言
 
 第一个 Python 项目，各种结构不是很好，配置也不够全，为了毕业（
