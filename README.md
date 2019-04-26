@@ -7,9 +7,19 @@
 ## 启动
 
 1. 安装依赖
-    ``` bash
-    pip3 install -r requirements.txt
-    ```
+
+    1) 安装项目依赖
+        ``` bash
+        pip3 install -r requirements.txt
+        ```
+    
+    2) 安装 Redis
+    
+        Mac:
+        ``` bash
+        brew install redis
+        ```
+    
 
 2. 添加目标干音到 /audios/demo 下
 
@@ -19,9 +29,24 @@
 
 5. 启动服务
 
-    ``` bash
-    python3 manage.py makemigrations && python3 manage.py migrate && python3 manage.py runserver
-    ```
+    1) 启动 Redis
+    
+        Mac:
+        ``` bash
+        redis-server
+        ```
+        
+    2) 启动 Django server
+    
+        ``` bash
+        python3 manage.py makemigrations && python3 manage.py migrate && python3 manage.py runserver
+        ```
+        
+    3) 启动 Celery 任务队列
+    
+        ``` bash
+        celery -A proj.mycelery worker -l info
+        ```
     
 6. 刷新数据库歌单列表
 

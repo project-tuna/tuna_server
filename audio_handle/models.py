@@ -9,6 +9,7 @@ class Audio(models.Model):
         'Demo',
         on_delete=models.CASCADE,
     )
+    task_id = models.CharField(max_length=64)
 
 class Demo(models.Model):
     name = models.CharField(max_length=64)
