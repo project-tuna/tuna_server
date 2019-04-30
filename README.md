@@ -45,7 +45,7 @@
     3) 启动 Celery 任务队列
     
         ``` bash
-        celery -A proj.mycelery worker -l info
+        celery -A tuna_server.celerytask worker -l info
         ```
     
 6. 刷新数据库歌单列表

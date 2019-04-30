@@ -4,3 +4,4 @@
 venv
 audio.json
 db.sqlite3
+dump.rdb
