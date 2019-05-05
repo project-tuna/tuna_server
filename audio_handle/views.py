@@ -1,4 +1,4 @@
-from django.http import HttpResponse, HttpRequest
+from django.http import HttpResponse, HttpRequest, Http404
 from django.conf import settings
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
@@ -72,13 +72,31 @@ def list(request):
     object = Demo.objects.all()
 
     # 构造返回数据
-    body = {
-        'list': []
-    }
+    body = []
+    
     for item in object:
         itemObj = {
             'id': item.pk,
             'name': item.name,
+            'artist': item.artist,
+            'lyric': item.lyric,
+            'accompaniment_url': item.accompaniment_url,
+            'offset': item.offset,
         }
-        body['list'].append(itemObj)
+        body.append(itemObj)
+    return HttpResponse(json.dumps(body), content_type='application/json')
+
+def get_demo(request, demo_id):
+    try:
+        item = Demo.objects.get(pk=demo_id)
+    except Demo.DoesNotExist:
+        raise Http404(None)
+    body = {
+        'id': item.pk,
+        'name': item.name,
+        'artist': item.artist,
+        'lyric': item.lyric,
+        'accompaniment_url': item.accompaniment_url, 
+        'offset': item.offset,
+    }
     return HttpResponse(json.dumps(body), content_type='application/json')
