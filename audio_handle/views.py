@@ -45,14 +45,25 @@ def index(request):
 
 def get_task(request):
     task_id = request.GET.get('task_id')
-    state = app.AsyncResult(task_id).state
+    try:
+        audio = Audio.objects.get(task_id=task_id)
+    except Audio.DoesNotExist:
+        raise Http404('Task not found')
+
+    status = audio.status
+
+    if status == 'PENDING':
+        status = app.AsyncResult(task_id).state
+        if status != 'PENDING':
+            audio.update(status=status)
 
     body = {}
-    if state == 'SUCCESS':
+    body['status'] = status
+
+    if status == 'SUCCESS':
         file_name = Audio.objects.get(task_id=task_id).file_name
         body['audio'] = settings.HOST + '/audios/output/' + file_name + '.wav'
-    else:
-        body['state'] = 'pending'
+
     return HttpResponse(json.dumps(body), content_type='application/json')
 
 
@@ -90,7 +101,7 @@ def get_demo(request, demo_id):
     try:
         item = Demo.objects.get(pk=demo_id)
     except Demo.DoesNotExist:
-        raise Http404(None)
+        raise Http404('Demo not found')
     body = {
         'id': item.pk,
         'name': item.name,
