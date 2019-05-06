@@ -10,6 +10,7 @@ class Audio(models.Model):
         on_delete=models.CASCADE,
     )
     task_id = models.CharField(max_length=64)
+    status = models.CharField(max_length=10, default='PENDING')
 
 class Demo(models.Model):
     file_name = models.CharField(max_length=64)
@@ -18,6 +19,3 @@ class Demo(models.Model):
     lyric = models.TextField()
     accompaniment_url = models.TextField()
     offset = models.FloatField()
-
-# class Lyric(models.Model)
-
