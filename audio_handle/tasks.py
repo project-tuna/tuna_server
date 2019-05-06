@@ -112,7 +112,7 @@ def audio_dtw(file_name, demo_path, media_root):
 
 def audio_pitch(file_name, demo_path, media_root):
     # load audio
-    source_path = '{media_root}/source/{file_name}.wav'
+    source_path = '{media_root}/dtw/{file_name}.wav'
     source_path = source_path.format(media_root=media_root, file_name=file_name)
     signal_source = basic.SignalObj(source_path)
     signal_target = basic.SignalObj(demo_path)
@@ -173,6 +173,6 @@ def audio_remix(file_name, bgm_path, media_root):
 
 @shared_task
 def audio_handler(file_name, demo_path, bgm_path, media_root):
-    # audio_dtw(file_name, demo_path, media_root)
+    audio_dtw(file_name, demo_path, media_root)
     audio_pitch(file_name, demo_path, media_root)
     audio_remix(file_name, bgm_path, media_root)
