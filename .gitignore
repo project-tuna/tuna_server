@@ -6,3 +6,4 @@ audio.json
 db.sqlite3
 dump.rdb
 **/__pycache__/
+static/
