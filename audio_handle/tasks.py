@@ -112,13 +112,13 @@ def audio_dtw(file_name, demo_path, media_root):
 
 def audio_pitch(file_name, demo_path, media_root):
     # load audio
-    source_path = '{media_root}/dtw/{file_name}.wav'
+    source_path = '{media_root}/source/{file_name}.wav'
     source_path = source_path.format(media_root=media_root, file_name=file_name)
     signal_source = basic.SignalObj(source_path)
     signal_target = basic.SignalObj(demo_path)
 
     # YAAPT pitches
-    pitches_source = pYAAPT.yaapt(signal_source, frame_length=40, tda_frame_length=40, fft_length=2048, f0_min=75,
+    pitches_source = pYAAPT.yaapt(signal_source, frame_length=40, tda_frame_length=40, fft_length=4096, f0_min=75,
                                   f0_max=600)
     pitches_target = pYAAPT.yaapt(signal_target, frame_length=40, tda_frame_length=40, fft_length=2048, f0_min=75,
                                   f0_max=600)
@@ -126,7 +126,7 @@ def audio_pitch(file_name, demo_path, media_root):
     wav, fs = librosa.load(source_path, sr=None)
     output = numpy.full(shape=(len(wav)), fill_value=0, dtype='float32')
     length = 4096
-    for i in range(0, len(wav), int(length / 6)):
+    for i in range(0, len(wav), int(length / 3)):
         # time: /10ms
         time = int(i / fs * 100)
         if (time < len(pitches_source.samp_values) and time < len(pitches_target.samp_values)):
@@ -173,6 +173,6 @@ def audio_remix(file_name, bgm_path, media_root):
 
 @shared_task
 def audio_handler(file_name, demo_path, bgm_path, media_root):
-    audio_dtw(file_name, demo_path, media_root)
+    # audio_dtw(file_name, demo_path, media_root)
     audio_pitch(file_name, demo_path, media_root)
     audio_remix(file_name, bgm_path, media_root)
