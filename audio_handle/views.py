@@ -64,7 +64,7 @@ def get_task(request):
     if status == 'SUCCESS':
         file_name = Audio.objects.get(task_id=task_id).file_name
         body['audio'] = settings.HOST + '/audios/output/' + file_name + '.wav'
-        body['song'] = audio.target
+        body['song'] = audio.target[0]
 
     return HttpResponse(json.dumps(body), content_type='application/json')
 
