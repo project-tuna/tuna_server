@@ -7,3 +7,4 @@ db.sqlite3
 dump.rdb
 **/__pycache__/
 static/
+audio_handle/migrations

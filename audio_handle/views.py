@@ -55,7 +55,8 @@ def get_task(request):
     if status == 'PENDING':
         status = app.AsyncResult(task_id).state
         if status != 'PENDING':
-            audio.update(status=status)
+            audio.status = status
+            audio.save()
 
     body = {}
     body['status'] = status
