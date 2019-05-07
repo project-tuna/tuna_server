@@ -159,7 +159,7 @@ MEDIA_ROOT = './audios'
 MEDIA_URL = '/audios/'
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 52428800
-HOST = 'https://project-tuna.com'
+HOST = 'https://api.project-tuna.com'
 
 CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
 CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
