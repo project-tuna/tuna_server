@@ -126,7 +126,7 @@ def audio_pitch(file_name, demo_path, media_root):
     wav, fs = librosa.load(source_path, sr=None)
     output = numpy.full(shape=(len(wav)), fill_value=0, dtype='float32')
     length = 4096
-    for i in range(0, len(wav), int(length / 3)):
+    for i in range(0, len(wav), int(length / 6)):
         # time: /10ms
         time = int(i / fs * 100)
         if (time < len(pitches_source.samp_values) and time < len(pitches_target.samp_values)):
